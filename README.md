@@ -32,4 +32,8 @@ npm start
 
 ## Using github login
 
-To use github login function you'll need to utilize the keys provided by creating a project on firebase console (https://console.firebase.google.com/).
+To use github login function you'll need to utilize the keys provided by creating a project on firebase console (https://console.firebase.google.com/) on `.env` file.
+
+After this you'll need to register a new OAuth key on https://github.com/settings/applications/new (`Homepage URL should be the same as authDomain from firebase console; Authorization callback URL is obtained on Authetication > GitHub also from firebase console.`).
+
+You'll then get a Client ID and can generate a client secret, which you'll use to configure on `firebase console > Authentication > GitHub` to activite the login provider.
