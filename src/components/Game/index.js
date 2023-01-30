@@ -9,7 +9,7 @@ import Scene from './Scene';
 import Battle from './Battle';
 
 export default function Game() {
-  const { char, isBattling } = useContext(GameContext);
+  const { char, isBattling, setIsBattling } = useContext(GameContext);
   const { createChar } = useCreateChar();
   const [isLoading, setIsLoading] = useState(false);
   const [createdChar, setCreatedChar] = useState(false);
@@ -40,7 +40,7 @@ export default function Game() {
       <img src={logo} alt="logo" />
       {char || createdChar ? (
         <>
-          <Scene char={char} />
+          <Scene char={char} setIsBattling={setIsBattling} />
           {isBattling === true && <Battle char={char} />}
         </>
       ) : (

@@ -5,7 +5,7 @@ export default styled.div`
   height: auto;
   min-height: 100vh;
   width: 100%;
-  color: white;
+  color: #ADD8E6;
   padding-top: 10px;
   padding-bottom: 20px;
 
@@ -31,6 +31,9 @@ export default styled.div`
     line-height: 22px;
     width: 70%;
     height: 75%;
+    padding: 20px;
+    border: 1px solid white;
+    border-radius: 20px;
 
     p {
       margin-bottom: 20px;
@@ -39,8 +42,11 @@ export default styled.div`
 
   > div > div {
     display: flex;
+    flex-wrap: wrap;
+    display: flex;
     justify-content: space-between;
     width: 100%;
+    gap: 10px;
   }
 
   @media (max-width: 600px) {
@@ -49,5 +55,9 @@ export default styled.div`
     max-height: initial;
     min-width: 100%;
     max-width: initial;
+
+    > div > div {
+      justify-content: center;
+    }
   }
 `;
