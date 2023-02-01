@@ -19,3 +19,13 @@ export async function createChar(body, token) {
 
   return response.data;
 }
+
+export async function updateChar(body, characterId, token) {
+  const response = await api.put(`/character/${characterId}`, body, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response.data;
+}

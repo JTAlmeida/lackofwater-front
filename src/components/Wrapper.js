@@ -5,14 +5,14 @@ export default styled.div`
   height: auto;
   min-height: 100vh;
   width: 100%;
-  color: #ADD8E6;
+  color: #add8e6;
   padding-top: 10px;
   padding-bottom: 20px;
 
   background-color: black;
   background-image: url(${bg});
   background-repeat: no-repeat;
-  background-size: 100vw 100vh;
+  background-size: 100% 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -34,6 +34,7 @@ export default styled.div`
     padding: 20px;
     border: 1px solid white;
     border-radius: 20px;
+    margin-bottom: 20px;
 
     p {
       margin-bottom: 20px;
@@ -44,7 +45,7 @@ export default styled.div`
     display: flex;
     flex-wrap: wrap;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-evenly;
     width: 100%;
     gap: 10px;
   }

@@ -1,54 +1,66 @@
 import GameContext from '../../contexts/GameContext';
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import styled from 'styled-components';
 import handleOption from './handleOption';
+import Battle from './Battle';
 
-export default function Scene({ char, setIsBattling }) {
-  const { scenes } = useContext(GameContext);
-  const [disableChoices, setDisableChoices] = useState(false);
-
-  const scene = scenes.find((scene) => scene.id === char?.currentSceneId);
+export default function Scene({ char }) {
+  const { scenes, isBattling, setIsBattling, setSceneId, setEnemyId, setIsAlive, currentHP, setCurrentHP } =
+    useContext(GameContext);
 
   let sceneOption1;
   let sceneOption2;
 
-  if (scene.SceneOptions[0].Option.description) {
+  const scene = scenes?.find((scene) => scene.id === char?.currentSceneId);
+
+  if (scene?.SceneOptions[0].Option.description) {
     sceneOption1 = scene.SceneOptions[0];
   }
 
-  if (scene.SceneOptions[1].Option.description) {
+  if (scene?.SceneOptions[1]?.Option.description) {
     sceneOption2 = scene.SceneOptions[1];
   }
+
   return (
-    <div>
-      <p>{scene?.description}</p>
+    <>
       <div>
-        {sceneOption1 !== undefined && disableChoices === false && (
-          <Button
-            onClick={() => {
-              handleOption({ option: sceneOption1, setIsBattling });
-              setDisableChoices(true);
-            }}
-          >
-            {sceneOption1?.Option.description}
-          </Button>
-        )}
-        {sceneOption2 !== undefined && disableChoices === false && (
-          <Button
-            onClick={() => {
-              handleOption({ option: sceneOption2, setIsBattling });
-            }}
-          >
-            {sceneOption2?.Option.description}
-          </Button>
-        )}
+        <p>{scene?.description}</p>
+        <div>
+          {sceneOption1 !== undefined && isBattling === false && (
+            <Button
+              onClick={() => {
+                handleOption({
+                  option: sceneOption1,
+                  setIsBattling,
+                  setSceneId,
+                  setEnemyId,
+                  setIsAlive,
+                  currentHP,
+                  setCurrentHP,
+                });
+              }}
+            >
+              {sceneOption1?.Option.description}
+            </Button>
+          )}
+          {sceneOption2 !== undefined && isBattling === false && (
+            <Button
+              onClick={() => {
+                handleOption({ option: sceneOption2, setIsBattling, setSceneId, setEnemyId, currentHP, setCurrentHP });
+              }}
+            >
+              {sceneOption2?.Option.description}
+            </Button>
+          )}
+        </div>
       </div>
-    </div>
+      {isBattling === true && <Battle char={char} />}
+    </>
   );
 }
 
 const Button = styled.button`
-  width: 30%;
+  width: 40%;
   border-radius: 20px;
   border: 1px solid white;
   background-color: white;

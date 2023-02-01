@@ -1,18 +1,19 @@
 import GameContext from '../../contexts/GameContext';
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Wrapper from '../Wrapper';
 import logo from '../../assets/images/logo.png';
 import useCreateChar from '../../hooks/api/useCreateChar';
+import useUpdateChar from '../../hooks/api/useUpdateChar';
 import { toast } from 'react-toastify';
 import Scene from './Scene';
-import Battle from './Battle';
+import Swal from 'sweetalert2';
 
 export default function Game() {
-  const { char, isBattling, setIsBattling } = useContext(GameContext);
+  const { char, isBattling, isAlive, sceneId, currentHP, enemyXP, endBattle, setEndBattle } = useContext(GameContext);
   const { createChar } = useCreateChar();
+  const { updateChar } = useUpdateChar();
   const [isLoading, setIsLoading] = useState(false);
-  const [createdChar, setCreatedChar] = useState(false);
   const [form, setForm] = useState({ name: '' });
 
   function handleForm(e) {
@@ -24,24 +25,58 @@ export default function Game() {
 
     setIsLoading(true);
     try {
-      await createChar(form);
-      toast('Char criado com sucesso!');
       setIsLoading(false);
-      setCreatedChar(true);
-      setForm({ name: '' });
+      await createChar(form);
+      Swal.fire({
+        title: 'Char criado com sucesso!',
+        confirmButtonText: 'OK',
+      }).then(() => {
+        window.location.reload();
+      });
     } catch (error) {
       toast('Houve um erro ao criar o personagem!');
       setIsLoading(false);
     }
   }
 
+  useEffect(async() => {
+    if (isAlive !== true || sceneId !== 1) {
+      try {
+        const currentXP = enemyXP + char.xp;
+        let currentLVL;
+        if (currentXP >= char?.lvl * 50 + (char?.lvl - 1) * (50 * (char?.lvl - 1))) {
+          currentLVL = Number(char?.lvl + 1);
+        } else {
+          currentLVL = char?.lvl;
+        }
+        const currentATK = 15 + 5 * currentLVL;
+        const currentDEF = 3 + currentLVL;
+
+        await updateChar(
+          {
+            currentSceneId: sceneId,
+            atk: currentATK,
+            def: currentDEF,
+            hp: currentHP,
+            xp: currentXP,
+            lvl: currentLVL,
+            isAlive: isAlive,
+          },
+          char?.id
+        );
+        setEndBattle(!endBattle);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  }, [isAlive, sceneId, isBattling]);
+
   return (
     <Wrapper>
       <img src={logo} alt="logo" />
-      {char || createdChar ? (
+      {char && isAlive ? (
         <>
-          <Scene char={char} setIsBattling={setIsBattling} />
-          {isBattling === true && <Battle char={char} />}
+          <Scene char={char} />
         </>
       ) : (
         <div>
