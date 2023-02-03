@@ -4,8 +4,8 @@ import styled from 'styled-components';
 import handleOption from './handleOption';
 import Battle from './Battle';
 
-export default function Scene({ char }) {
-  const { scenes, isBattling, setIsBattling, setSceneId, setEnemyId, setIsAlive, currentHP, setCurrentHP } =
+export default function Scene() {
+  const { char, scenes, isBattling, setIsBattling, setSceneId, setEnemyId, setIsAlive, currentHP, setCurrentHP } =
     useContext(GameContext);
 
   let sceneOption1;
@@ -54,7 +54,7 @@ export default function Scene({ char }) {
           )}
         </div>
       </div>
-      {isBattling === true && <Battle char={char} />}
+      {isBattling === true && <Battle />}
     </>
   );
 }

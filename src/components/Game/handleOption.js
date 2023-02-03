@@ -12,11 +12,11 @@ function checkRandomEncounter() {
   }
 
   if (roll > 0 && roll < 8) {
-    return 9;
+    return 8;
   }
 
   if (roll >= 8 && roll < 15) {
-    return 10;
+    return 9;
   }
 }
 
@@ -42,30 +42,11 @@ export default function handleOption({
   const currentSceneId = option?.sceneId;
   const optionId = option?.optionId;
 
-  if (currentSceneId === 9) {
-    const enemy = randomizeEnemy();
-
-    localStorage.setItem('isBattling', true);
-    setIsBattling(true);
-
-    setEnemyId(enemy);
-    localStorage.setItem('enemyId', enemy);
-  }
-
-  if (currentSceneId === 10) {
-    const res = checkRandomEncounter();
-
-    if (res === 'continue') {
-      setSceneId(Number(localStorage.getItem('nextScene')));
-    } else {
-      setSceneId(res);
-    }
-  }
-
   if (currentSceneId === 1 && optionId === 1) {
     localStorage.setItem('isBattling', true);
     localStorage.setItem('nextScene', 2);
     setIsBattling(true);
+    return;
   }
 
   if (currentSceneId === 1 && optionId === 2) {
@@ -78,6 +59,7 @@ export default function handleOption({
     } else {
       setSceneId(res);
     }
+    return;
   }
 
   if (currentSceneId === 2) {
@@ -86,18 +68,21 @@ export default function handleOption({
     setEnemyId(2);
     localStorage.setItem('enemyId', 2);
     setIsBattling(true);
+    return;
   }
 
   if (currentSceneId === 3) {
     localStorage.setItem('isBattling', true);
-    localStorage.setItem('nextScene', 8);
+    localStorage.setItem('nextScene', 7);
     localStorage.setItem('enemyId', 3);
     setIsBattling(true);
     setEnemyId(3);
+    return;
   }
 
   if (currentSceneId === 4 && optionId === 4) {
     setSceneId(5);
+    return;
   }
 
   if (currentSceneId === 4 && optionId === 5) {
@@ -109,40 +94,58 @@ export default function handleOption({
     } else {
       setSceneId(res);
     }
+    return;
   }
 
   if (currentSceneId === 5) {
     setCurrentHP(currentHP - 10);
     localStorage.setItem('isBattling', true);
-    localStorage.setItem('nextScene', 6);
+    localStorage.setItem('nextScene', 3);
     localStorage.setItem('enemyId', 2);
     setEnemyId(2);
     setIsBattling(true);
+    return;
   }
 
   if (currentSceneId === 6) {
     localStorage.setItem('isBattling', true);
-    localStorage.setItem('nextScene', 8);
+    localStorage.setItem('nextScene', 7);
     localStorage.setItem('enemyId', 3);
     setIsBattling(true);
     setEnemyId(3);
+    return;
   }
 
   if (currentSceneId === 7) {
-    localStorage.setItem('isBattling', true);
-    localStorage.setItem('nextScene', 8);
-    localStorage.setItem('enemyId', 3);
-    setIsBattling(true);
-    setEnemyId(3);
-  }
-
-  if (currentSceneId === 8) {
     localStorage.setItem('isBattling', false);
     localStorage.setItem('nextScene', 1);
     localStorage.setItem('enemyId', 1);
     setIsBattling(false);
     setSceneId(1);
     setIsAlive(false);
-    return toast('Parabéns, você venceu!');
+    return toast('Parabéns, você salvou a humanidade!', { position: toast.POSITION.TOP_CENTER, autoClose: 2000 });
+  }
+
+  if (currentSceneId === 8) {
+    const enemy = randomizeEnemy();
+
+    localStorage.setItem('isBattling', true);
+    setIsBattling(true);
+
+    setEnemyId(enemy);
+    localStorage.setItem('enemyId', enemy);
+    return;
+  }
+
+  if (currentSceneId === 9) {
+    const res = checkRandomEncounter();
+
+    if (res === 'continue') {
+      setSceneId(Number(localStorage.getItem('nextScene')));
+    } else {
+      toast('Você caminha pelo labirinto', { position: toast.POSITION.TOP_CENTER, autoClose: 1500 });
+      setSceneId(res);
+    }
+    return;
   }
 }

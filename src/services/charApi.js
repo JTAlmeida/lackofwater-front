@@ -29,3 +29,13 @@ export async function updateChar(body, characterId, token) {
 
   return response.data;
 }
+
+export async function upsertCharItem(body, characterId, itemId, token) {
+  const response = await api.put(`/character/${characterId}/${itemId}`, body, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response.data;
+}

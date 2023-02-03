@@ -23,11 +23,13 @@ export function GameProvider({ children }) {
   const [sceneId, setSceneId] = useState(currentScene || 1);
   const [currentHP, setCurrentHP] = useState(char?.hp);
   const [enemyXP, setEnemyXP] = useState(0);
-  const [endBattle, setEndBattle] = useState(false);
+  const [reloadChar, setReloadChar] = useState(false);
+  const [giveItem, setGiveItem] = useState(true);
+  const [usePotion, setUsePotion] = useState(false);
 
   useEffect(async() => {
     await getChar();
-  }, [endBattle]);
+  }, [reloadChar, usePotion]);
 
   return (
     <GameContext.Provider
@@ -48,8 +50,12 @@ export function GameProvider({ children }) {
         setCurrentHP,
         enemyXP,
         setEnemyXP,
-        endBattle,
-        setEndBattle,
+        giveItem,
+        setGiveItem,
+        usePotion,
+        setUsePotion,
+        reloadChar,
+        setReloadChar
       }}
     >
       {children}

@@ -10,7 +10,7 @@ import Scene from './Scene';
 import Swal from 'sweetalert2';
 
 export default function Game() {
-  const { char, isBattling, isAlive, sceneId, currentHP, enemyXP, endBattle, setEndBattle } = useContext(GameContext);
+  const { char, isAlive, sceneId, currentHP, enemyXP, reloadChar, setReloadChar } = useContext(GameContext);
   const { createChar } = useCreateChar();
   const { updateChar } = useUpdateChar();
   const [isLoading, setIsLoading] = useState(false);
@@ -25,8 +25,8 @@ export default function Game() {
 
     setIsLoading(true);
     try {
-      setIsLoading(false);
       await createChar(form);
+      setIsLoading(false);
       Swal.fire({
         title: 'Char criado com sucesso!',
         confirmButtonText: 'OK',
@@ -34,7 +34,7 @@ export default function Game() {
         window.location.reload();
       });
     } catch (error) {
-      toast('Houve um erro ao criar o personagem!');
+      toast('Houve um erro ao criar o personagem!', { position: toast.POSITION.TOP_CENTER, autoClose: 2000 });
       setIsLoading(false);
     }
   }
@@ -42,7 +42,13 @@ export default function Game() {
   useEffect(async() => {
     if (isAlive !== true || sceneId !== 1) {
       try {
-        const currentXP = enemyXP + char.xp;
+        let currentXP;
+        if (char?.currentSceneId === 9) {
+          currentXP = char.xp;
+        } else {
+          currentXP = enemyXP + char.xp;
+        }
+
         let currentLVL;
         if (currentXP >= char?.lvl * 50 + (char?.lvl - 1) * (50 * (char?.lvl - 1))) {
           currentLVL = Number(char?.lvl + 1);
@@ -64,7 +70,7 @@ export default function Game() {
           },
           char?.id
         );
-        setEndBattle(!endBattle);
+        setReloadChar(!reloadChar);
       } catch (error) {
         console.error(error);
       }

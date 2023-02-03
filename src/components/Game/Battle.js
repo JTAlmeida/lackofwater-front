@@ -1,11 +1,20 @@
 import GameContext from '../../contexts/GameContext';
 import { useContext, useState, useEffect } from 'react';
+import useUpsertCharItem from '../../hooks/api/useUpsertCharItem';
 import styled from 'styled-components';
 import Item from './Item';
 import { toast } from 'react-toastify';
 
+function rollD4() {
+  return Math.floor(Math.random() * (4 - 1) + 1);
+}
+
 function rollD20() {
   return Math.floor(Math.random() * (20 - 1) + 1);
+}
+
+function rollDropChance() {
+  return (Math.random() * (1 - 0) + 0).toFixed(2);
 }
 
 function checkRandomEncounter() {
@@ -16,16 +25,12 @@ function checkRandomEncounter() {
   }
 
   if (roll > 0 && roll < 8) {
-    return 9;
+    return 8;
   }
 
   if (roll >= 8 && roll < 15) {
-    return 10;
+    return 9;
   }
-}
-
-function rollD4() {
-  return Math.floor(Math.random() * (4 - 1) + 1);
 }
 
 function damageCalc({ char, enemy, type }) {
@@ -33,25 +38,61 @@ function damageCalc({ char, enemy, type }) {
   const enemyRoll = rollD4();
 
   if (type === 'enemy') {
-    return enemy.atk + enemyRoll - (char.def + playerRoll);
+    return enemy?.atk + enemyRoll - (char?.def + playerRoll);
   }
 
   if (type === 'player') {
-    return char.atk + playerRoll - (enemy.def + enemyRoll);
+    return char?.atk + playerRoll - (enemy?.def + enemyRoll);
   }
 }
 
-export default function Battle({ char }) {
-  const { enemies, enemyId, isBattling, setIsBattling, setIsAlive, setSceneId, currentHP, setCurrentHP, setEnemyXP } =
-    useContext(GameContext);
+function minReceivedDamage(enemy, char) {
+  if (enemy?.atk + 1 - (char?.def + 4) < 0) {
+    return 0;
+  }
+  return enemy?.atk + 1 - (char?.def + 4);
+}
+
+export default function Battle() {
+  const {
+    char,
+    enemies,
+    enemyId,
+    isBattling,
+    setIsBattling,
+    setIsAlive,
+    setSceneId,
+    currentHP,
+    setCurrentHP,
+    setEnemyXP,
+    giveItem,
+    setGiveItem,
+  } = useContext(GameContext);
   const [enemyCurrentHP, setEnemyCurrentHP] = useState(1);
+  const { upsertCharItem } = useUpsertCharItem();
 
   const enemy = enemies?.find((enemy) => enemy.id === enemyId);
+  const charPotion = char?.CharacterItems.find((charItem) => charItem.itemId === 1);
 
   useEffect(() => {
     setCurrentHP(char?.hp);
     setEnemyCurrentHP(enemy?.hp);
-  }, [enemies, isBattling, char]);
+  }, [enemies, isBattling]);
+
+  useEffect(() => {
+    if (giveItem === true && enemy?.EnemyItems !== undefined) {
+      enemy?.EnemyItems.map(async(enemyItem) => {
+        const roll = rollDropChance();
+        const dropChance = enemyItem.dropChance / 100;
+
+        if (roll >= dropChance) {
+          await upsertCharItem({ quantity: charPotion?.quantity + 1 || 1 }, char?.id, enemyItem.itemId);
+
+          setGiveItem(false);
+        }
+      });
+    }
+  }, [giveItem]);
 
   if (currentHP <= 0 && char !== undefined) {
     localStorage.setItem('isBattling', false);
@@ -61,27 +102,32 @@ export default function Battle({ char }) {
     setCurrentHP(0);
     setSceneId(1);
     setIsAlive(false);
-    return toast('Você morreu!');
+    return toast('Você morreu!', { position: toast.POSITION.TOP_CENTER, autoClose: 1500 });
   }
 
   if (enemyCurrentHP <= 0 && char !== undefined) {
-    toast('Você venceu!');
+    toast('Você venceu!', { position: toast.POSITION.TOP_CENTER, autoClose: 1500 });
     localStorage.setItem('isBattling', false);
     setIsBattling(false);
     setCurrentHP(currentHP);
     setEnemyXP(enemy?.exp);
-    const res = checkRandomEncounter();
+    setGiveItem(true);
 
-    if (res === 'continue') {
-      setSceneId(Number(localStorage.getItem('nextScene')));
-    } else {
-      setSceneId(res);
-    }
+    const nextScene = Number(localStorage.getItem('nextScene'));
+
+    if (nextScene !== 7) {
+      const res = checkRandomEncounter();
+
+      if (res === 'continue') {
+        setSceneId(Number(localStorage.getItem('nextScene')));
+      } else {
+        setSceneId(res);
+      }
+    } else setSceneId(7);
   }
 
   return (
     <div>
-      <p>Dica: poções curam 50% de sua vida máxima, mas você perde o turno.</p>
       <Player>
         Char: {char?.name} | lvl:{char?.lvl} | xp:{char?.xp}/{char?.lvl * 50 + (char?.lvl - 1) * (50 * (char?.lvl - 1))}{' '}
         | atk: {char?.atk} | def: {char?.def}
@@ -102,18 +148,22 @@ export default function Battle({ char }) {
           if (playerDamage >= 0) {
             setEnemyCurrentHP(enemyCurrentHP - playerDamage);
           }
-          const enemyDamage = damageCalc({ char, enemy, type: 'enemy' });
-          if (enemyDamage >= 0) {
-            setCurrentHP(currentHP - enemyDamage);
+
+          if (enemyCurrentHP - playerDamage > 0) {
+            const enemyDamage = damageCalc({ char, enemy, type: 'enemy' });
+            if (enemyDamage >= 0) {
+              setCurrentHP(currentHP - enemyDamage);
+            }
           }
         }}
       >
         ATACAR! <br />
         (Dano causado: {char?.atk + 1 - (enemy?.def + 4)}~{char?.atk + 4 - (enemy?.def + 1)}) <br />
-        (Dano recebido: {enemy?.atk + 1 - (char?.def + 4)}~{enemy?.atk + 4 - (char?.def + 1)})
+        (Dano recebido: {minReceivedDamage(enemy, char)}~{enemy?.atk + 4 - (char?.def + 1)})
       </Button>
+      <Tip>Dica: Você sempre é o primeiro a atacar e não sofrerá dano caso mate o inimigo.</Tip>
 
-      <Item char={char} />
+      <Item enemyDamage={damageCalc({ char, enemy, type: 'enemy' })} />
     </div>
   );
 }
@@ -122,6 +172,7 @@ const Player = styled.div`
   border: 1px solid white;
   border-radius: 10px;
   padding: 10px;
+  font-size: 20px;
 
   p {
     font-size: 20px;
@@ -158,4 +209,8 @@ const Button = styled.button`
     background: black;
     color: #add8e6;
   }
+`;
+
+const Tip = styled.p`
+  font-size: 14px;
 `;
