@@ -8,6 +8,7 @@ export default styled.div`
   color: #add8e6;
   padding-top: 10px;
   padding-bottom: 20px;
+  font-size: 24px;
 
   background-color: black;
   background-image: url(${bg});
@@ -56,7 +57,11 @@ export default styled.div`
     max-height: initial;
     min-width: 100%;
     max-width: initial;
+    font-size: 20px;
 
+    > div {
+      width: 90%;
+    }
     > div > div {
       justify-content: center;
     }

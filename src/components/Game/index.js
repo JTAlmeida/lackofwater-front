@@ -69,7 +69,7 @@ export default function Game() {
         console.error(error);
       }
     }
-  }, [isAlive, sceneId, isBattling]);
+  }, [isAlive, sceneId]);
 
   return (
     <Wrapper>

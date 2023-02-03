@@ -108,8 +108,11 @@ export default function Battle({ char }) {
           }
         }}
       >
-        ATACAR! (Dano causado: {char?.atk + 1 - (enemy?.def + 4)}~{char?.atk + 4 - (enemy?.def + 1)})
+        ATACAR! <br />
+        (Dano causado: {char?.atk + 1 - (enemy?.def + 4)}~{char?.atk + 4 - (enemy?.def + 1)}) <br />
+        (Dano recebido: {enemy?.atk + 1 - (char?.def + 4)}~{enemy?.atk + 4 - (char?.def + 1)})
       </Button>
+
       <Item char={char} />
     </div>
   );
@@ -143,6 +146,7 @@ const Enemy = styled.div`
 
 const Button = styled.button`
   width: auto;
+  padding-bottom: 5px;
   border-radius: 20px;
   border: 1px solid white;
   background-color: white;

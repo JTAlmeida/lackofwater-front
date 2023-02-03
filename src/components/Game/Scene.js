@@ -65,10 +65,16 @@ const Button = styled.button`
   border: 1px solid white;
   background-color: white;
   cursor: pointer;
+  font-size: 16px;
 
   &&:hover {
     border: 3px solid #add8e6;
     background: black;
     color: #add8e6;
+  }
+
+  @media (max-width: 600px) {
+    width: 80%;
+    margin-bottom: 10px;
   }
 `;
